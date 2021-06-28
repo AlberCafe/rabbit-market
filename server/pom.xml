@@ -10,9 +10,9 @@
     </parent>
     <groupId>com.albercafe</groupId>
     <artifactId>rabbitmarket</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>server</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Application for buying and selling used stuff</description>
     <properties>
         <java.version>16</java.version>
     </properties>
