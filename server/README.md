@@ -1,4 +1,6 @@
-## server
+### Server
 
 > tools
-Spring boot, Docker
+
+Spring boot, Docker, MySQL
+
