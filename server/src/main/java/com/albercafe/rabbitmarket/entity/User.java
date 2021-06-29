@@ -38,6 +38,9 @@ public class User {
     )
     private String phoneNumber;
 
+    // 이메일 혹은 핸드폰을 통해 인증된 유저인지 파악
+    private boolean enabled;
+
     // TODO: 별도의 엔티티로 차후에 분리될 수 있음
     private String address;
 
