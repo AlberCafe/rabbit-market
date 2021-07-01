@@ -20,7 +20,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @NotBlank(message = "username 은 빈 값이 들어갈 수 없습니다.")
     private String username;
 
     @NotBlank(message = "password 는 빈 값이 들어갈 수 없습니다.")
@@ -30,11 +29,9 @@ public class User {
     @NotEmpty(message = "email 은 빈 값이 들어갈 수 없습니다.")
     private String email;
 
-    // TODO: 정규식이 차후에 변경될 수 있음
-    @NotNull
     @Pattern(
             regexp = "^01(?:0|1|[6-9])[.-]?(\\d{3}|\\d{4})[.-]?(\\d{4})",
-            message = "01로 시작해야하고, 두번째 자리가 3 ~ 4자리 숫자, 마지막 자리가 4자리 숫자이어야 합니다."
+            message = "010-1234-5678 로 입력하거나 010 1234 5678 로 입력해주세요"
     )
     private String phoneNumber;
 
