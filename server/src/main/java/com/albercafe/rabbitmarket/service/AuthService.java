@@ -1,5 +1,7 @@
 package com.albercafe.rabbitmarket.service;
 
+import com.albercafe.rabbitmarket.dto.AuthenticationResponse;
+import com.albercafe.rabbitmarket.dto.LoginRequest;
 import com.albercafe.rabbitmarket.dto.RegisterRequest;
 import com.albercafe.rabbitmarket.dto.NotificationEmail;
 import com.albercafe.rabbitmarket.entity.User;
@@ -7,9 +9,14 @@ import com.albercafe.rabbitmarket.entity.VerificationToken;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
 import com.albercafe.rabbitmarket.repository.UserRepository;
 import com.albercafe.rabbitmarket.repository.VerificationTokenRepository;
+import com.albercafe.rabbitmarket.security.JWTProvider;
 import com.albercafe.rabbitmarket.util.Constants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +34,14 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailContentBuilder mailContentBuilder;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final JWTProvider jwtProvider;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
         User user = new User();
         user.setEmail(registerRequest.getEmail());
-        user.setUsername(registerRequest.getUsername());
         user.setPassword(encodePassword(registerRequest.getPassword()));
-        user.setPhoneNumber(registerRequest.getPhoneNumber());
         user.setEnabled(false);
 
         userRepository.save(user);
@@ -71,5 +78,17 @@ public class AuthService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RabbitMarketException("User not found with " + email));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String authenticationToken = jwtProvider.generateToken(authentication);
+
+        return new AuthenticationResponse(authenticationToken, loginRequest.getEmail());
     }
 }
