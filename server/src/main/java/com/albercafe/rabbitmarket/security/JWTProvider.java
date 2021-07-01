@@ -1,6 +1,8 @@
 package com.albercafe.rabbitmarket.security;
 
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,8 @@ public class JWTProvider {
     @Value("${jks.password}")
     private String keyStorePassword;
 
+    private JwtParser parser;
+
     @PostConstruct
     public void init() {
         try {
@@ -30,6 +34,7 @@ public class JWTProvider {
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             throw new RabbitMarketException("Keystore 를 로딩하는중 에러 발생");
         }
+        parser = Jwts.parserBuilder().setSigningKey(getPublicKey()).build();
     }
 
     public String generateToken(Authentication authentication) {
@@ -45,7 +50,28 @@ public class JWTProvider {
         try {
             return (PrivateKey) keyStore.getKey("rabbit-market", keyStorePassword.toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
+            throw new RabbitMarketException("keystore 로 부터 개인키를 가져오는 중 에러 발생");
+        }
+    }
+
+    public boolean validateToken(String jwt) {
+        parser.parseClaimsJws(jwt);
+        return true;
+    }
+
+    private PublicKey getPublicKey() {
+        try {
+            return keyStore.getCertificate("rabbit-market").getPublicKey();
+        } catch (KeyStoreException e) {
             throw new RabbitMarketException("keystore 로 부터 공개키를 가져오는 중 에러 발생");
         }
+    }
+
+    public String getEmailFromJWT(String token) {
+        Claims claims = parser
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
     }
 }
