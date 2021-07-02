@@ -1,5 +1,6 @@
 package com.albercafe.rabbitmarket.security;
 
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,16 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@AllArgsConstructor
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private JWTProvider jwtProvider;
 
     private UserDetailsService userDetailsService;
-
-    public JWTAuthenticationFilter(JWTProvider jwtProvider, UserDetailsService userDetailsService) {
-        this.jwtProvider = jwtProvider;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
