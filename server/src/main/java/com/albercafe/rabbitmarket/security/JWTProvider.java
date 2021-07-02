@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.time.Instant;
+import java.util.Date;
 
 @Service
 public class JWTProvider {
@@ -25,16 +27,19 @@ public class JWTProvider {
 
     private JwtParser parser;
 
+    @Value("${jwt.expiration.time}")
+    private Long JWTExpirationInMillis;
+
     @PostConstruct
     public void init() {
         try {
             keyStore = KeyStore.getInstance("JKS");
             InputStream resourceAsStream = getClass().getResourceAsStream("/rabbit-market.jks");
             keyStore.load(resourceAsStream, keyStorePassword.toCharArray());
+            parser = Jwts.parserBuilder().setSigningKey(getPublicKey()).build();
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             throw new RabbitMarketException("Keystore 를 로딩하는중 에러 발생");
         }
-        parser = Jwts.parserBuilder().setSigningKey(getPublicKey()).build();
     }
 
     public String generateToken(Authentication authentication) {
@@ -43,6 +48,17 @@ public class JWTProvider {
         return Jwts.builder()
                 .setSubject(principal.getUsername())
                 .signWith(getPrivateKey())
+                .setIssuedAt(Date.from(Instant.now()))
+                .setExpiration(Date.from(Instant.now().plusMillis(JWTExpirationInMillis)))
+                .compact();
+    }
+
+    public String generateTokenWithEmail(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .signWith(getPrivateKey())
+                .setIssuedAt(Date.from(Instant.now()))
+                .setExpiration(Date.from(Instant.now().plusMillis(JWTExpirationInMillis)))
                 .compact();
     }
 
@@ -73,5 +89,9 @@ public class JWTProvider {
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    public Long getJWTExpirationInMillis() {
+        return JWTExpirationInMillis;
     }
 }
