@@ -1,9 +1,6 @@
 package com.albercafe.rabbitmarket.service;
 
-import com.albercafe.rabbitmarket.dto.AuthenticationResponse;
-import com.albercafe.rabbitmarket.dto.LoginRequest;
-import com.albercafe.rabbitmarket.dto.RegisterRequest;
-import com.albercafe.rabbitmarket.dto.NotificationEmail;
+import com.albercafe.rabbitmarket.dto.*;
 import com.albercafe.rabbitmarket.entity.User;
 import com.albercafe.rabbitmarket.entity.VerificationToken;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
@@ -17,10 +14,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +35,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JWTProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
@@ -89,6 +89,24 @@ public class AuthService {
 
         String authenticationToken = jwtProvider.generateToken(authentication);
 
-        return new AuthenticationResponse(authenticationToken, loginRequest.getEmail());
+        return AuthenticationResponse.builder()
+                .authenticationToken(authenticationToken)
+                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJWTExpirationInMillis()))
+                .email(loginRequest.getEmail())
+                .build();
     }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtProvider.generateTokenWithEmail(refreshTokenRequest.getEmail());
+
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJWTExpirationInMillis()))
+                .email(refreshTokenRequest.getEmail())
+                .build();
+    }
+
 }
