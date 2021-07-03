@@ -48,7 +48,7 @@ public class AuthService {
 
         String token = generateVerificationToken(user);
         String link = Constants.ACTIVATION_EMAIL + "/" + token;
-        String message = mailContentBuilder.build("이메일 인증을 진행하기 위해 아래의 링크를 클릭해주세요. " + link);
+        String message = mailContentBuilder.build(link);
 
         mailService.sendMail(new NotificationEmail("계정 활성화를 실행해주세요.", user.getEmail(), message));
     }
