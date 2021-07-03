@@ -17,6 +17,7 @@
         <java.version>16</java.version>
         <timeago.version>4.0.3</timeago.version>
         <jwt.version>0.11.2</jwt.version>
+        <springfox.version>2.9.2</springfox.version>
     </properties>
     <dependencies>
         <dependency>
@@ -64,6 +65,18 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- swagger -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.version}</version>
         </dependency>
 
         <!-- JWT related dependencies -->
