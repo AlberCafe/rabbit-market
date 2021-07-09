@@ -31,12 +31,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category updateCategory(Long id, Category category) {
-        Category temp = categoryRepository.findById(id).orElseThrow(() -> new CategoryNotFoundException("이 아이디로 카테고리를 찾을 수 없음 + " + id));
-        temp.setName(category.getName());
-        if (category.getIcon() != null)
-            temp.setIcon(category.getIcon());
-        return temp;
+    public Category updateCategory(Category category) {
+        // TODO: 수정을 위한 더 나은 로직 필요
+        return categoryRepository.save(category);
     }
 
     @Transactional

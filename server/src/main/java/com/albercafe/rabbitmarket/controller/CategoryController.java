@@ -25,9 +25,9 @@ public class CategoryController {
     @PostMapping
     public Category createCategory(@RequestBody Category category) { return categoryService.createCategory(category); }
 
-    @PatchMapping("/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        return categoryService.updateCategory(id, category);
+    @PatchMapping
+    public Category updateCategory(@RequestBody Category category) {
+        return categoryService.updateCategory(category);
     }
 
     @DeleteMapping("/{id}")
