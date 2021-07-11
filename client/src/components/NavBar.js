@@ -37,6 +37,10 @@ function RegisterModal(props) {
 }
 
 function LoginModal(props) {
+  const [id, setId] = React.useState("");
+  const [pwd, setPwd] = React.useState("");
+  console.log(id);
+
   return (
     <Modal {...props} size="lg" centered>
       <Modal.Header>
@@ -46,13 +50,13 @@ function LoginModal(props) {
         <Form>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" />
+            <Form.Control type="email" placeholder="Enter email" onChange={e => setId(e.target.value)} />
             <Form.Text className="text-muted">We'll never share your email with anyone else.</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" />
+            <Form.Control type="password" placeholder="Password" onChange={e => setPwd(e.target.value)} />
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check type="checkbox" label="Check me out" />
@@ -75,9 +79,6 @@ function NavBar() {
   const [modalShow, setModalShow] = useState(false);
   const [modalShow2, setModalShow2] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-
-  const [id, setId] = React.useState("");
-  const [pwd, setPwd] = React.useState("");
 
   return (
     <div>
