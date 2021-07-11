@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 
-function CenteredModal(props) {
+function RegisterModal(props) {
   return (
     <Modal {...props} size="lg" centered>
       <Modal.Header>
@@ -36,8 +36,49 @@ function CenteredModal(props) {
   );
 }
 
+function LoginModal(props) {
+  const [id, setId] = React.useState("");
+  const [pwd, setPwd] = React.useState("");
+  console.log(id);
+
+  return (
+    <Modal {...props} size="lg" centered>
+      <Modal.Header>
+        <Modal.Title id="contained-modal-title-vcenter">로그인</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form>
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Email address</Form.Label>
+            <Form.Control type="email" placeholder="Enter email" onChange={e => setId(e.target.value)} />
+            <Form.Text className="text-muted">We'll never share your email with anyone else.</Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control type="password" placeholder="Password" onChange={e => setPwd(e.target.value)} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check type="checkbox" label="Check me out" />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" type="submit">
+          로그인
+        </Button>
+        <Button variant="danger" onClick={props.onHide}>
+          닫기
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function NavBar() {
   const [modalShow, setModalShow] = useState(false);
+  const [modalShow2, setModalShow2] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   return (
     <div>
@@ -65,18 +106,19 @@ function NavBar() {
                 <FormControl type="search" placeholder="" />
                 <Button variant="success">🔍</Button>
               </Form>
-              <Nav.Link href="#deets" style={{ display: "flex", alignItems: "center" }}>
-                로그인
-              </Nav.Link>
               <Nav.Link href="#memes" onClick={() => setModalShow(true)} style={{ display: "flex", alignItems: "center" }}>
-                회원가입
+                {authenticated ? <div>마이 페이지</div> : <div>회원가입</div>}
+              </Nav.Link>
+              <Nav.Link href="#deets" onClick={() => setModalShow2(true)} style={{ display: "flex", alignItems: "center" }}>
+                {authenticated ? <div>로그아웃</div> : <div>로그인</div>}
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
-      <CenteredModal show={modalShow} onHide={() => setModalShow(false)}></CenteredModal>
+      <RegisterModal show={modalShow} onHide={() => setModalShow(false)}></RegisterModal>
+      <LoginModal show={modalShow2} onHide={() => setModalShow2(false)}></LoginModal>
     </div>
   );
 }
