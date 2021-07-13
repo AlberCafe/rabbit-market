@@ -21,13 +21,13 @@ public class AuthController {
     private final AuthService authService;
     private final RefreshTokenService refreshTokenService;
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", produces = "application/json; charset=UTF-8;")
     public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
         authService.signup(registerRequest);
         return new ResponseEntity<>("회원가입 완료", HttpStatus.OK);
     }
 
-    @GetMapping("accountVerification/{token}")
+    @GetMapping(value = "/accountVerification/{token}", produces = "application/json; charset=UTF-8;")
     public ResponseEntity<String> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
         return new ResponseEntity<>("계정 활성화가 성공적으로 되었습니다.", HttpStatus.OK);
@@ -38,7 +38,7 @@ public class AuthController {
         return authService.login(loginRequest);
     }
 
-    @PostMapping("refresh/token")
+    @PostMapping("/refresh/token")
     public AuthenticationResponse refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         return authService.refreshToken(refreshTokenRequest);
     }
