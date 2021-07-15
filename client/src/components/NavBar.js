@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
+import { Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDropdown, Alert } from "react-bootstrap";
 
 import axios from "axios";
 
 function RegisterModal(props) {
   const [id, setId] = useState("");
   const [pwd, setPwd] = useState("");
+  const [show, setShow] = useState(false);
 
   const signUp = () => {
     axios
@@ -15,6 +16,10 @@ function RegisterModal(props) {
       })
       .then(res => {
         console.log("성공:", res);
+        setShow(true);
+        setTimeout(function () {
+          setShow(false);
+        }, 3000);
       })
       .catch(err => {
         console.log(err);
@@ -63,6 +68,12 @@ function RegisterModal(props) {
           닫기
         </Button>
       </Modal.Footer>
+      {show ? (
+        <Alert variant="success" onClose={() => setShow(false)}>
+          <Alert.Heading>회원 가입 성공</Alert.Heading>
+          <p>로그인 하시고 토끼마켓을 이용하세요!</p>
+        </Alert>
+      ) : null}
     </Modal>
   );
 }
