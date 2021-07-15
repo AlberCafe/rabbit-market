@@ -1,7 +1,26 @@
 import React, { useState } from "react";
 import { Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 
+import axios from "axios";
+
 function RegisterModal(props) {
+  const [id, setId] = useState("");
+  const [pwd, setPwd] = useState("");
+
+  const signUp = () => {
+    axios
+      .post("http://localhost:8080/api/auth/signup", {
+        email: id,
+        password: pwd,
+      })
+      .then(res => {
+        console.log("성공:", res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   return (
     <Modal {...props} size="lg" centered>
       <Modal.Header>
@@ -11,13 +30,25 @@ function RegisterModal(props) {
         <Form>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" />
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              onChange={e => {
+                setId(e.target.value);
+              }}
+            />
             <Form.Text className="text-muted">We'll never share your email with anyone else.</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" />
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              onChange={e => {
+                setPwd(e.target.value);
+              }}
+            />
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check type="checkbox" label="Check me out" />
@@ -25,7 +56,7 @@ function RegisterModal(props) {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" onClick={signUp}>
           가입
         </Button>
         <Button variant="danger" onClick={props.onHide}>
@@ -37,9 +68,22 @@ function RegisterModal(props) {
 }
 
 function LoginModal(props) {
-  const [id, setId] = React.useState("");
-  const [pwd, setPwd] = React.useState("");
-  console.log(id);
+  const [id, setId] = useState("");
+  const [pwd, setPwd] = useState("");
+
+  const login = () => {
+    axios
+      .post("http://localhost:8080/api/auth/login", {
+        email: id,
+        password: pwd,
+      })
+      .then(res => {
+        console.log("성공:", res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
 
   return (
     <Modal {...props} size="lg" centered>
@@ -64,7 +108,7 @@ function LoginModal(props) {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" onClick={login}>
           로그인
         </Button>
         <Button variant="danger" onClick={props.onHide}>
@@ -75,7 +119,7 @@ function LoginModal(props) {
   );
 }
 
-function NavBar() {
+function NavBar({ history }) {
   const [modalShow, setModalShow] = useState(false);
   const [modalShow2, setModalShow2] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
@@ -84,7 +128,7 @@ function NavBar() {
     <div>
       <Navbar expand="lg" bg="light" variant="light">
         <Container>
-          <Navbar.Brand href="#home" style={{ paddingTop: "10px", paddingRight: "30px" }}>
+          <Navbar.Brand href="/" style={{ paddingTop: "10px", paddingRight: "30px" }}>
             <h1 style={{ color: "orange", fontWeight: "900" }}>토끼마켓</h1>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
@@ -106,10 +150,10 @@ function NavBar() {
                 <FormControl type="search" placeholder="" />
                 <Button variant="success">🔍</Button>
               </Form>
-              <Nav.Link href="#memes" onClick={() => setModalShow(true)} style={{ display: "flex", alignItems: "center" }}>
+              <Nav.Link href="/#" onClick={() => setModalShow(true)} style={{ display: "flex", alignItems: "center" }}>
                 {authenticated ? <div>마이 페이지</div> : <div>회원가입</div>}
               </Nav.Link>
-              <Nav.Link href="#deets" onClick={() => setModalShow2(true)} style={{ display: "flex", alignItems: "center" }}>
+              <Nav.Link href="/#" onClick={() => setModalShow2(true)} style={{ display: "flex", alignItems: "center" }}>
                 {authenticated ? <div>로그아웃</div> : <div>로그인</div>}
               </Nav.Link>
             </Nav>
