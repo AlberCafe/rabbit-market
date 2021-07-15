@@ -18,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600L)
                 .allowedHeaders("*")
                 .exposedHeaders("Authorization")
-                .allowCredentials(false);
+                .allowCredentials(true);
     }
 
     @Override
