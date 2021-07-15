@@ -6,7 +6,7 @@ import { Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDropdown, 
 import SignupModal from "./SignUp";
 import LoginModal from "./LogIn";
 
-function NavBar({ history }) {
+function NavBar() {
   const [modalShow, setModalShow] = useState(false);
   const [modalShow2, setModalShow2] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
