@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDropdown, Alert } from "react-bootstrap";
 
 import axios from "axios";
@@ -7,6 +7,12 @@ function RegisterModal(props) {
   const [id, setId] = useState("");
   const [pwd, setPwd] = useState("");
   const [show, setShow] = useState(false);
+  const [validation, setValidation] = useState(false);
+  const valid = id.includes("@" && ".") && pwd.length > 5;
+
+  useEffect(() => {
+    setValidation(valid);
+  }, [id, pwd]);
 
   const signUp = () => {
     axios
@@ -61,9 +67,11 @@ function RegisterModal(props) {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" type="submit" onClick={signUp}>
-          가입
-        </Button>
+        {validation ? (
+          <Button variant="primary" type="submit" onClick={signUp}>
+            가입
+          </Button>
+        ) : null}
         <Button variant="danger" onClick={props.onHide}>
           닫기
         </Button>
