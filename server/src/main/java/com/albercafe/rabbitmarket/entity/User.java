@@ -22,14 +22,14 @@ public class User {
     @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
     private UserProfile userProfile;
 
-    @NotBlank(message = "password 는 빈 값이 들어갈 수 없습니다.")
+    @NotNull(message = "password 는 빈 값이 들어갈 수 없습니다.")
     private String password;
 
     @Email
-    @NotEmpty(message = "email 은 빈 값이 들어갈 수 없습니다.")
+    @Column(unique = true)
+    @NotNull(message = "email 은 빈 값이 들어갈 수 없습니다.")
     private String email;
 
-    // 이메일 혹은 핸드폰을 통해 인증된 유저인지 파악
     private boolean enabled;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
