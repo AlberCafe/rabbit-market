@@ -2,8 +2,10 @@ package com.albercafe.rabbitmarket.service;
 
 import com.albercafe.rabbitmarket.dto.*;
 import com.albercafe.rabbitmarket.entity.User;
+import com.albercafe.rabbitmarket.entity.UserProfile;
 import com.albercafe.rabbitmarket.entity.VerificationToken;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
+import com.albercafe.rabbitmarket.repository.UserProfileRepository;
 import com.albercafe.rabbitmarket.repository.UserRepository;
 import com.albercafe.rabbitmarket.repository.VerificationTokenRepository;
 import com.albercafe.rabbitmarket.security.JWTProvider;
@@ -28,6 +30,7 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailContentBuilder mailContentBuilder;
@@ -42,6 +45,14 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail());
         user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setEnabled(false);
+
+        UserProfile userProfile = new UserProfile();
+        userProfile.setAddress(registerRequest.getAddress());
+        userProfile.setPhoneNumber(registerRequest.getPhoneNumber());
+        userProfile.setUsername(registerRequest.getUsername());
+
+        user.setUserProfile(userProfile);
+        userProfile.setUser(user);
 
         userRepository.save(user);
 
