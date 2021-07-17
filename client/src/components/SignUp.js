@@ -5,6 +5,9 @@ import { Alert, Button, Modal, Form, FormControl, Navbar, Nav, Container, NavDro
 function SignUp(props) {
   const [id, setId] = useState("");
   const [pwd, setPwd] = useState("");
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   const [show, setShow] = useState(false);
   const [validation, setValidation] = useState(false);
   const valid = id.includes("@" && ".") && pwd.length > 5;
@@ -12,6 +15,30 @@ function SignUp(props) {
   useEffect(() => {
     setValidation(valid);
   }, [id, pwd]);
+
+  const userChange = e => {
+    setName(e.target.value);
+  };
+
+  const registerUser = () => {
+    let userObject = {
+      email: id,
+      password: pwd,
+      name: name,
+      mobile: phoneNumber,
+    };
+  };
+
+  props.registerUser(userObject);
+
+  resetRegisterForm = () => {
+    const [id, setId] = useState("");
+    const [pwd, setPwd] = useState("");
+    const [name, setName] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+  };
+
+  resetRegisterForm();
 
   const signUp = () => {
     axios
@@ -43,6 +70,7 @@ function SignUp(props) {
             <Form.Control
               type="email"
               placeholder="Enter email"
+              name="email"
               onChange={e => {
                 setId(e.target.value);
               }}
@@ -55,11 +83,26 @@ function SignUp(props) {
             <Form.Control
               type="password"
               placeholder="Password"
+              name="password"
+              value={pwd}
               onChange={e => {
                 setPwd(e.target.value);
               }}
             />
           </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="number"
+              placeholder="Phone number"
+              value={contact}
+              onChange={e => {
+                setPwd(e.target.value);
+              }}
+            />
+          </Form.Group>
+
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check type="checkbox" label="Check me out" />
           </Form.Group>
