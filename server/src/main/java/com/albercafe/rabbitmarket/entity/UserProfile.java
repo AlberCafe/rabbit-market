@@ -30,7 +30,6 @@ public class UserProfile {
 
     private String address;
 
-    // TODO: AWS S3 와 연동
     private String profile_photo;
 
     @ColumnDefault("0")
