@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,9 +24,8 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping(value = "/signup", produces = "application/json; charset=UTF-8;")
-    public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
-        authService.signup(registerRequest);
-        return new ResponseEntity<>("회원가입 완료", HttpStatus.OK);
+    public ResponseEntity<Map<Object, Object>> signup(@RequestBody RegisterRequest registerRequest) {
+        return authService.signup(registerRequest);
     }
 
     @GetMapping(value = "/accountVerification/{token}", produces = "application/json; charset=UTF-8;")
@@ -35,8 +35,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
-        return new ResponseEntity<>(authService.login(loginRequest), HttpStatus.OK);
+    public ResponseEntity<Map<Object, Object>> login(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 
     @PostMapping("/refresh/token")
