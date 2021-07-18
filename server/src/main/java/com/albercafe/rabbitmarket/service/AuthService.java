@@ -115,15 +115,21 @@ public class AuthService {
 
         Optional<User> user = userRepository.findByEmail(email);
 
+        Map<Object, Object> responseBody = new HashMap<>();
+
         if (!user.isPresent()) {
-            Map<Object, Object> responseBody = new HashMap<>();
             responseBody.put("data", null);
             responseBody.put("error", "wrong email");
             return ResponseEntity.badRequest().body(responseBody);
         }
 
+        if (!user.get().getEnabled()) {
+            responseBody.put("data", null);
+            responseBody.put("error", "this user need to activate, checkout your email !");
+            return ResponseEntity.badRequest().body(responseBody);
+        }
+
         if (!bCryptPasswordEncoder.matches(password, user.get().getPassword())) {
-            Map<Object, Object> responseBody = new HashMap<>();
             responseBody.put("data", null);
             responseBody.put("error", "wrong password");
             return ResponseEntity.badRequest().body(responseBody);
@@ -144,7 +150,6 @@ public class AuthService {
                 .email(loginRequest.getEmail())
                 .build();
 
-        Map<Object, Object> responseBody = new HashMap<>();
         responseBody.put("data", authenticationResponse);
         responseBody.put("error", null);
 
