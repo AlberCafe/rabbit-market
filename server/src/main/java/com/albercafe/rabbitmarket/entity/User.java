@@ -30,7 +30,7 @@ public class User {
     @NotNull(message = "email 은 빈 값이 들어갈 수 없습니다.")
     private String email;
 
-    private boolean enabled;
+    private Boolean enabled;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Product> productList;
