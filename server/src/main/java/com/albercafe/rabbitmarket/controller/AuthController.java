@@ -23,7 +23,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping(value = "/signup", produces = "application/json; charset=UTF-8;")
-    public ResponseEntity<Map<Object, Object>> signup(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Map<Object, Object>> signup(@Valid @RequestBody RegisterRequest registerRequest) {
         return authService.signup(registerRequest);
     }
 
@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<Object, Object>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<Object, Object>> login(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 
