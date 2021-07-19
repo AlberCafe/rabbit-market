@@ -35,6 +35,6 @@ public class UserProfile {
     @ColumnDefault("0")
     private Long ratings;
 
-    @OneToOne(mappedBy = "userProfile", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "userProfile")
     private User user;
 }
