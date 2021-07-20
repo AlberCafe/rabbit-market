@@ -1,11 +1,15 @@
 package com.albercafe.rabbitmarket.controller;
 
+import com.albercafe.rabbitmarket.dto.CategoryDTO;
 import com.albercafe.rabbitmarket.entity.Category;
 import com.albercafe.rabbitmarket.service.CategoryService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -20,18 +24,22 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public Category getCategory(@PathVariable Long id) { return categoryService.getCategory(id); }
+    public ResponseEntity<Map<Object, Object>> getCategory(@PathVariable Long id) {
+        return categoryService.getCategory(id);
+    }
 
     @PostMapping
-    public Category createCategory(@RequestBody Category category) { return categoryService.createCategory(category); }
+    public ResponseEntity<Map<Object, Object>> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
+        return categoryService.createCategory(categoryDTO);
+    }
 
     @PatchMapping
-    public Category updateCategory(@RequestBody Category category) {
-        return categoryService.updateCategory(category);
+    public ResponseEntity<Map<Object, Object>> updateCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
+        return categoryService.updateCategory(categoryDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<Map<Object, Object>> deleteCategory(@PathVariable Long id) {
+        return categoryService.deleteCategory(id);
     }
 }
