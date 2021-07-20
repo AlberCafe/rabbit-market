@@ -22,7 +22,6 @@ public class Category {
     @NotNull(message = "이름은 필수 값입니다.")
     private String name;
 
-    // TODO : AWS S3 에서 아이콘 이미지 가져오기
     private String icon;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
