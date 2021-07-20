@@ -168,4 +168,11 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        org.springframework.security.core.userdetails.User principal
+                = (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return userRepository.findByEmail(principal.getUsername()).orElseThrow(() -> new RabbitMarketException("user not exist : " + principal.getUsername()));
+    }
 }
