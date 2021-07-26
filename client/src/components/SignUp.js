@@ -29,17 +29,6 @@ function SignUp(props) {
     };
   };
 
-  props.registerUser(userObject);
-
-  resetRegisterForm = () => {
-    const [id, setId] = useState("");
-    const [pwd, setPwd] = useState("");
-    const [name, setName] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-  };
-
-  resetRegisterForm();
-
   const signUp = () => {
     axios
       .post("http://localhost:8080/api/auth/signup", {
@@ -96,7 +85,6 @@ function SignUp(props) {
             <Form.Control
               type="number"
               placeholder="Phone number"
-              value={contact}
               onChange={e => {
                 setPwd(e.target.value);
               }}
