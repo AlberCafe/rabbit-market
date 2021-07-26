@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a7a02f1-7870-4fe2-8214-7c7f4739c86d" name="Default Changelist" comment="" />
+    <list default="true" id="9a7a02f1-7870-4fe2-8214-7c7f4739c86d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../client/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/actions/types.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/actions/user_action.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/components/SignUp.js" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/components/SignUp.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/reducer/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/reducer/user_reducer.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/services/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/services/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/albercafe/rabbitmarket/security/JWTAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/albercafe/rabbitmarket/security/JWTAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/albercafe/rabbitmarket/service/UserDetailsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/albercafe/rabbitmarket/service/UserDetailsServiceImpl.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,7 +42,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../book-rest-api-reactjs-master/book-rest-api-reactjs-master" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
@@ -67,6 +81,10 @@
       <updated>1626344131685</updated>
       <workItem from="1626344139892" duration="325000" />
       <workItem from="1626344482067" duration="2325000" />
+      <workItem from="1626618919224" duration="1027000" />
+      <workItem from="1626656122197" duration="1497000" />
+      <workItem from="1626661905022" duration="54000" />
+      <workItem from="1627265191157" duration="2988000" />
     </task>
     <servers />
   </component>
@@ -83,5 +101,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

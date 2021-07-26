@@ -20,9 +20,9 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
-    private JWTProvider jwtProvider;
+    private final JWTProvider jwtProvider;
 
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
