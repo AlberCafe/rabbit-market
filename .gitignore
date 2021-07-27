@@ -1,3 +1,5 @@
+.gitignore
+
 application.properties
 rabbit-market.jks
 
