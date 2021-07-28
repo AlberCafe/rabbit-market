@@ -1,14 +1,12 @@
 package com.albercafe.rabbitmarket.controller;
 
-import com.albercafe.rabbitmarket.dto.CategoryDTO;
-import com.albercafe.rabbitmarket.entity.Category;
+import com.albercafe.rabbitmarket.dto.CategoryRequest;
 import com.albercafe.rabbitmarket.service.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,7 +17,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getCategories() {
+    public ResponseEntity<Map<Object, Object>> getCategories() {
         return categoryService.getAll();
     }
 
@@ -29,13 +27,13 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<Object, Object>> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
-        return categoryService.createCategory(categoryDTO);
+    public ResponseEntity<Map<Object, Object>> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+        return categoryService.createCategory(categoryRequest);
     }
 
-    @PatchMapping
-    public ResponseEntity<Map<Object, Object>> updateCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
-        return categoryService.updateCategory(categoryDTO);
+    @PatchMapping("/{id}")
+    public ResponseEntity<Map<Object, Object>> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest categoryRequest) {
+        return categoryService.updateCategory(id, categoryRequest);
     }
 
     @DeleteMapping("/{id}")
