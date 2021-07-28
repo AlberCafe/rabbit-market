@@ -34,4 +34,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Product> productList;
+
+    @OneToOne
+    @JoinTable(name = "user_refresh_token",
+            joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "userId") },
+            inverseJoinColumns = { @JoinColumn(name = "refresh_token_id", referencedColumnName = "id") })
+    private RefreshToken refreshToken;
 }
