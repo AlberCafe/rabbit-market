@@ -1,5 +1,6 @@
 package com.albercafe.rabbitmarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,6 @@ public class UserProfile {
     private Long ratings;
 
     @OneToOne(mappedBy = "userProfile")
+    @JsonIgnore
     private User user;
 }
