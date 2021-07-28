@@ -1,8 +1,8 @@
 package com.albercafe.rabbitmarket.service;
 
-import com.albercafe.rabbitmarket.dto.CategoryDTO;
+import com.albercafe.rabbitmarket.dto.CategoryRequest;
 import com.albercafe.rabbitmarket.entity.Category;
-import com.albercafe.rabbitmarket.exception.CategoryNotFoundException;
+import com.albercafe.rabbitmarket.mapper.CategoryMapper;
 import com.albercafe.rabbitmarket.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +21,19 @@ import java.util.Optional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
     private final AuthService authService;
 
     @Transactional(readOnly = true)
-    public List<Category> getAll() {
-        return categoryRepository.findAll();
+    public ResponseEntity<Map<Object, Object>> getAll() {
+        Map<Object, Object> responseBody = new HashMap<>();
+
+        List<Category> categories = categoryRepository.findAll();
+
+        responseBody.put("data", categories);
+        responseBody.put("error", null);
+
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
@@ -34,84 +42,88 @@ public class CategoryService {
 
         Optional<Category> category = categoryRepository.findById(id);
 
-        if (!category.isPresent()) {
+        if (category.isEmpty()) {
             responseBody.put("data", null);
-            responseBody.put("error", "category isn't exist !");
-            return ResponseEntity.badRequest().body(responseBody);
+            responseBody.put("error", "wrong category id !");
+            return ResponseEntity.status(400).body(responseBody);
         }
 
-        Category categoryResponse = category.get();
-
-        responseBody.put("data", categoryResponse);
+        responseBody.put("data", category.get());
         responseBody.put("error", null);
 
-        return ResponseEntity.ok().body(responseBody);
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> createCategory(CategoryDTO categoryDTO) {
+    public ResponseEntity<Map<Object, Object>> createCategory(CategoryRequest categoryRequest) {
         Map<Object, Object> responseBody = new HashMap<>();
 
         if (authService.getCurrentUser() == null) {
             responseBody.put("data", null);
-            responseBody.put("error", "you must need to login first !");
+            responseBody.put("error", "you must login first !");
             return ResponseEntity.status(401).body(responseBody);
         }
 
-        if (categoryRepository.findByName(categoryDTO.getName()).isPresent()) {
+        Optional<Category> tempCategory = categoryRepository.findByName(categoryRequest.getName());
+
+        if (tempCategory.isPresent()) {
             responseBody.put("data", null);
             responseBody.put("error", "category already exists !");
-            return ResponseEntity.badRequest().body(responseBody);
+            return ResponseEntity.status(400).body(responseBody);
         }
 
-        Category category = new Category();
-        category.setName(categoryDTO.getName());
+        Category category = categoryMapper.mapRequestToEntity(categoryRequest);
 
         categoryRepository.save(category);
 
         responseBody.put("data", category);
         responseBody.put("error", null);
 
-        return ResponseEntity.ok().body(responseBody);
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> updateCategory(CategoryDTO categoryDTO) {
+    public ResponseEntity<Map<Object, Object>> updateCategory(Long id, CategoryRequest categoryRequest) {
+
+        Optional<Category> category = categoryRepository.findById(id);
+
         Map<Object, Object> responseBody = new HashMap<>();
 
-        Optional<Category> category = categoryRepository.findById(categoryDTO.getId());
-
-        if (!category.isPresent()) {
+        if (category.isEmpty()) {
             responseBody.put("data", null);
-            responseBody.put("error", "category isn't exist !");
-            return ResponseEntity.badRequest().body(responseBody);
+            responseBody.put("error", "wrong category id !");
+            return ResponseEntity.status(400).body(responseBody);
         }
 
-        Category categoryResponse = category.get();
-        categoryResponse.setName(categoryDTO.getName());
-        categoryRepository.save(categoryResponse);
+        Category tempCategory = category.get();
 
-        responseBody.put("data", categoryResponse);
+        tempCategory.setName(categoryRequest.getName());
+
+        categoryRepository.save(tempCategory);
+
+        responseBody.put("data", tempCategory);
         responseBody.put("error", null);
 
-        return ResponseEntity.ok().body(responseBody);
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
     public ResponseEntity<Map<Object, Object>> deleteCategory(Long id) {
         Map<Object, Object> responseBody = new HashMap<>();
+
         Optional<Category> category = categoryRepository.findById(id);
 
-        if (!category.isPresent()) {
+        if (category.isEmpty()) {
             responseBody.put("data", null);
             responseBody.put("error", "category isn't exist ! ");
-            return ResponseEntity.badRequest().body(responseBody);
+            return ResponseEntity.status(400).body(responseBody);
         }
 
-        Category categoryResponse = category.get();
-        responseBody.put("data", categoryResponse);
+        responseBody.put("data", "category id : " + id + " is removed !");
         responseBody.put("error", null);
 
-        return ResponseEntity.ok().body(responseBody);
+        categoryRepository.deleteById(id);
+
+        return ResponseEntity.status(200).body(responseBody);
     }
 }
