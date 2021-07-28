@@ -117,7 +117,7 @@ public class AuthService {
 
         Map<Object, Object> responseBody = new HashMap<>();
 
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             responseBody.put("data", null);
             responseBody.put("error", "wrong email");
             return ResponseEntity.badRequest().body(responseBody);
