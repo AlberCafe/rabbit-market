@@ -9,10 +9,8 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfiguration {
 
     @Bean
@@ -30,7 +28,7 @@ public class SwaggerConfiguration {
                 .title("Rabbit Market API")
                 .version("1.0")
                 .description("API for Rabbit Market Application")
-                .contact(new Contact("sdy", "https://github.com/khusw", "vel1024@naver.com"))
+                .contact(new Contact("sdy", "https://github.com/dy-shin", "vel1024@naver.com"))
                 .license("Apache License Version 2.0")
                 .build();
     }

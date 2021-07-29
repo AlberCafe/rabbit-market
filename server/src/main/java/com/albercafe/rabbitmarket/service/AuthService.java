@@ -22,8 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,13 +42,14 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> signup(RegisterRequest registerRequest) {
+    public ResponseEntity<CustomResponse> signup(RegisterRequest registerRequest) {
+        CustomResponse responseBody = new CustomResponse();
+
         Optional<User> tempUser = userRepository.findByEmail(registerRequest.getEmail());
 
         if (tempUser.isPresent()) {
-            Map<Object, Object> responseBody = new HashMap<>();
-            responseBody.put("data", null);
-            responseBody.put("error", "already exists user !");
+            responseBody.setData(null);
+            responseBody.setError("Already exist user !");
             return ResponseEntity.badRequest().body(responseBody);
         }
 
@@ -75,9 +75,8 @@ public class AuthService {
 
         mailService.sendMail(new NotificationEmail("계정 활성화를 실행해주세요.", user.getEmail(), message));
 
-        Map<Object, Object> responseBody = new HashMap<>();
-        responseBody.put("data", "checkout your email, you must activate your account !");
-        responseBody.put("error", null);
+        responseBody.setData("checkout your email, you must activate your account !");
+        responseBody.setError(null);
 
         return ResponseEntity.ok().body(responseBody);
     }
@@ -95,10 +94,23 @@ public class AuthService {
         return bCryptPasswordEncoder.encode(password);
     }
 
-    public void verifyAccount(String token) {
+    public ResponseEntity<CustomResponse> verifyAccount(String token) {
+        CustomResponse responseBody = new CustomResponse();
+
         Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);
-        verificationTokenOptional.orElseThrow(() -> new RabbitMarketException("Invalid Token"));
+
+        if (verificationTokenOptional.isEmpty()) {
+            responseBody.setData(null);
+            responseBody.setError("Invalid Token, Check out your verification token !");
+            return ResponseEntity.status(400).body(responseBody);
+        }
+
         fetchUserAndEnable(verificationTokenOptional.get());
+
+        responseBody.setData("Account activation was successful.");
+        responseBody.setError(null);
+
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
@@ -109,30 +121,30 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public ResponseEntity<Map<Object, Object>> login(LoginRequest loginRequest) {
+    public ResponseEntity<CustomResponse> login(LoginRequest loginRequest) {
+        CustomResponse responseBody = new CustomResponse();
+
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
         Optional<User> user = userRepository.findByEmail(email);
 
-        Map<Object, Object> responseBody = new HashMap<>();
-
         if (user.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "wrong email");
-            return ResponseEntity.badRequest().body(responseBody);
+            responseBody.setData(null);
+            responseBody.setError("Wrong Email !");
+            return ResponseEntity.status(400).body(responseBody);
         }
 
         if (!user.get().getEnabled()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "this user need to activate, checkout your email !");
-            return ResponseEntity.badRequest().body(responseBody);
+            responseBody.setData(null);
+            responseBody.setError("This user need to activate, checkout your email !");
+            return ResponseEntity.status(400).body(responseBody);
         }
 
         if (!bCryptPasswordEncoder.matches(password, user.get().getPassword())) {
-            responseBody.put("data", null);
-            responseBody.put("error", "wrong password");
-            return ResponseEntity.badRequest().body(responseBody);
+            responseBody.setData(null);
+            responseBody.setError("Wrong Password !");
+            return ResponseEntity.status(400).body(responseBody);
         }
 
         Authentication authentication = authenticationManager.authenticate(
@@ -146,26 +158,33 @@ public class AuthService {
         AuthenticationResponse authenticationResponse =  AuthenticationResponse.builder()
                 .authenticationToken(authenticationToken)
                 .refreshToken(refreshTokenService.generateRefreshToken().getToken())
-                .expiresAt(Instant.now().plusMillis(jwtProvider.getJWTExpirationInMillis()))
+                .expiresAt(Instant.from(OffsetDateTime.now().plusMinutes(jwtProvider.getJWTExpirationInMillis())))
                 .email(loginRequest.getEmail())
                 .build();
 
-        responseBody.put("data", authenticationResponse);
-        responseBody.put("error", null);
+        responseBody.setData(authenticationResponse);
+        responseBody.setError(null);
 
         return ResponseEntity.ok().body(responseBody);
     }
 
-    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+    public ResponseEntity<CustomResponse> refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        CustomResponse responseBody = new CustomResponse();
+
         refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
         String token = jwtProvider.generateTokenWithEmail(refreshTokenRequest.getEmail());
 
-        return AuthenticationResponse.builder()
+        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
                 .authenticationToken(token)
                 .refreshToken(refreshTokenRequest.getRefreshToken())
-                .expiresAt(Instant.now().plusMillis(jwtProvider.getJWTExpirationInMillis()))
+                .expiresAt(Instant.from(OffsetDateTime.now().plusMinutes(jwtProvider.getJWTExpirationInMillis())))
                 .email(refreshTokenRequest.getEmail())
                 .build();
+
+        responseBody.setData(authenticationResponse);
+        responseBody.setError(null);
+
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional(readOnly = true)

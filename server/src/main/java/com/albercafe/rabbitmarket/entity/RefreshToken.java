@@ -1,14 +1,13 @@
 package com.albercafe.rabbitmarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.Instant;
+import javax.persistence.*;
+import java.time.OffsetDateTime;
 
 @Data
 @AllArgsConstructor
@@ -22,5 +21,10 @@ public class RefreshToken {
 
     private String token;
 
-    private Instant createdDate;
+    @CreatedDate
+    private OffsetDateTime createdDate;
+
+    @OneToOne(mappedBy = "refreshToken")
+    @JsonIgnore
+    private User user;
 }

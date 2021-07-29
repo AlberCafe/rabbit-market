@@ -1,5 +1,6 @@
 package com.albercafe.rabbitmarket.service;
 
+import com.albercafe.rabbitmarket.dto.CustomResponse;
 import com.albercafe.rabbitmarket.dto.ProductRequest;
 import com.albercafe.rabbitmarket.dto.ProductResponse;
 import com.albercafe.rabbitmarket.entity.Category;
@@ -13,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,53 +29,53 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Map<Object, Object>> getAll() {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> getAll() {
+        CustomResponse responseBody = new CustomResponse();
 
         List<ProductResponse> productResponseList = productRepository
                 .findAll().stream().map(productMapper::mapEntityToResponse).collect(Collectors.toList());
 
-        responseBody.put("data", productResponseList);
-        responseBody.put("error", null);
+        responseBody.setData(productResponseList);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> getProduct(Long id) {
+    public ResponseEntity<CustomResponse> getProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
 
-        Map<Object, Object> responseBody = new HashMap<>();
+        CustomResponse responseBody = new CustomResponse();
 
         if (product.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "wrong product id !");
+            responseBody.setData(null);
+            responseBody.setError("Wrong Product Id !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
         ProductResponse productResponse = productMapper.mapEntityToResponse(product.get());
 
-        responseBody.put("data", productResponse);
-        responseBody.put("error", null);
+        responseBody.setData(productResponse);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> createProduct(ProductRequest productRequest) {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> createProduct(ProductRequest productRequest) {
+        CustomResponse responseBody = new CustomResponse();
 
         if (authService.getCurrentUser() == null) {
-            responseBody.put("data", null);
-            responseBody.put("error", "you must login first !");
+            responseBody.setData(null);
+            responseBody.setError("you must login first !");
             return ResponseEntity.status(401).body(responseBody);
         }
 
         Optional<Category> category = categoryRepository.findByName(productRequest.getCategoryName());
 
         if (category.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "category isn't exist !");
+            responseBody.setData(null);
+            responseBody.setError("Category doesn't exist !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
@@ -94,21 +93,21 @@ public class ProductService {
 
         ProductResponse productResponse = productMapper.mapEntityToResponse(product);
 
-        responseBody.put("data", productResponse);
-        responseBody.put("error", null);
+        responseBody.setData(productResponse);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> updateProduct(Long id, ProductRequest productRequest) {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> updateProduct(Long id, ProductRequest productRequest) {
+        CustomResponse responseBody = new CustomResponse();
 
         Optional<Product> product = productRepository.findById(id);
 
         if (product.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "product id is wrong !!");
+            responseBody.setData(null);
+            responseBody.setError("Product's id wrong !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
@@ -117,8 +116,8 @@ public class ProductService {
         Optional<Category> category = categoryRepository.findByName(productRequest.getCategoryName());
 
         if (category.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "category could not found !!, check out selected category name ");
+            responseBody.setData(null);
+            responseBody.setError("Category could not found !!");
             return ResponseEntity.status(400).body(responseBody);
         }
 
@@ -140,28 +139,28 @@ public class ProductService {
 
         ProductResponse productResponse = productMapper.mapEntityToResponse(tempProduct);
 
-        responseBody.put("data", productResponse);
-        responseBody.put("error", null);
+        responseBody.setData(productResponse);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> deleteProduct(Long id) {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> deleteProduct(Long id) {
+        CustomResponse responseBody = new CustomResponse();
 
         Optional<Product> product = productRepository.findById(id);
 
         if (product.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "wrong product id !");
+            responseBody.setData(null);
+            responseBody.setError("Wrong Product Id !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
         productRepository.deleteById(id);
 
-        responseBody.put("data", "product removed !");
-        responseBody.put("error", null);
+        responseBody.setData("Product removed !");
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }

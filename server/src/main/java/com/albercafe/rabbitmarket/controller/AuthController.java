@@ -1,18 +1,15 @@
 package com.albercafe.rabbitmarket.controller;
 
-import com.albercafe.rabbitmarket.dto.AuthenticationResponse;
-import com.albercafe.rabbitmarket.dto.LoginRequest;
-import com.albercafe.rabbitmarket.dto.RefreshTokenRequest;
-import com.albercafe.rabbitmarket.dto.RegisterRequest;
+import com.albercafe.rabbitmarket.dto.*;
 import com.albercafe.rabbitmarket.service.AuthService;
 import com.albercafe.rabbitmarket.service.RefreshTokenService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,30 +19,38 @@ public class AuthController {
     private final AuthService authService;
     private final RefreshTokenService refreshTokenService;
 
+    @ApiOperation(httpMethod = "POST", value = "Signup", notes = "After Signup, you must check out email !")
+    @ApiResponse(code = 200, message = "OK", response = CustomResponse.class)
     @PostMapping(value = "/signup", produces = "application/json; charset=UTF-8;")
-    public ResponseEntity<Map<Object, Object>> signup(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<CustomResponse> signup(@Valid @RequestBody RegisterRequest registerRequest) {
         return authService.signup(registerRequest);
     }
 
+    @ApiOperation(httpMethod = "GET", value = "Activate account", notes = "Activate account")
+    @ApiResponse(code = 200, message = "OK", response = CustomResponse.class)
     @GetMapping(value = "/accountVerification/{token}", produces = "application/json; charset=UTF-8;")
-    public ResponseEntity<String> verifyAccount(@PathVariable String token) {
-        authService.verifyAccount(token);
-        return new ResponseEntity<>("계정 활성화가 성공적으로 되었습니다.", HttpStatus.OK);
+    public ResponseEntity<CustomResponse> verifyAccount(@PathVariable String token) {
+        return authService.verifyAccount(token);
     }
 
+    @ApiOperation(httpMethod = "POST", value = "login", notes = "When login, you must check out email, password !")
+    @ApiResponse(code = 200, message = "OK", response = CustomResponse.class)
     @PostMapping("/login")
-    public ResponseEntity<Map<Object, Object>> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<CustomResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 
+    @ApiOperation(httpMethod = "POST", value = "Create Refresh Token", notes = "Create refresh token, refresh token need to validate jwt")
+    @ApiResponse(code = 200, message = "OK", response = CustomResponse.class)
     @PostMapping("/refresh/token")
-    public ResponseEntity<AuthenticationResponse> refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
-        return new ResponseEntity<>(authService.refreshToken(refreshTokenRequest), HttpStatus.OK);
+    public ResponseEntity<CustomResponse> refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return authService.refreshToken(refreshTokenRequest);
     }
 
+    @ApiOperation(httpMethod = "POST", value = "logout", notes = "When logout, refreshToken will be removed !")
+    @ApiResponse(code = 200, message = "OK", response = CustomResponse.class)
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
-        refreshTokenService.deleteRefreshToken(refreshTokenRequest.getRefreshToken());
-        return ResponseEntity.status(HttpStatus.OK).body("Refresh Token Deleted !");
+    public ResponseEntity<CustomResponse> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return refreshTokenService.deleteRefreshToken(refreshTokenRequest.getRefreshToken());
     }
 }

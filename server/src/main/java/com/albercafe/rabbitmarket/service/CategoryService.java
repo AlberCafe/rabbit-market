@@ -1,22 +1,21 @@
 package com.albercafe.rabbitmarket.service;
 
 import com.albercafe.rabbitmarket.dto.CategoryRequest;
+import com.albercafe.rabbitmarket.dto.CustomResponse;
 import com.albercafe.rabbitmarket.entity.Category;
 import com.albercafe.rabbitmarket.mapper.CategoryMapper;
 import com.albercafe.rabbitmarket.repository.CategoryRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class CategoryService {
 
@@ -25,50 +24,50 @@ public class CategoryService {
     private final AuthService authService;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Map<Object, Object>> getAll() {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> getAll() {
+        CustomResponse responseBody = new CustomResponse();
 
         List<Category> categories = categoryRepository.findAll();
 
-        responseBody.put("data", categories);
-        responseBody.put("error", null);
+        responseBody.setData(categories);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> getCategory(Long id) {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> getCategory(Long id) {
+        CustomResponse responseBody = new CustomResponse();
 
         Optional<Category> category = categoryRepository.findById(id);
 
         if (category.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "wrong category id !");
+            responseBody.setData(null);
+            responseBody.setError("Wrong Category Id !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
-        responseBody.put("data", category.get());
-        responseBody.put("error", null);
+        responseBody.setData(category.get());
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> createCategory(CategoryRequest categoryRequest) {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> createCategory(CategoryRequest categoryRequest) {
+        CustomResponse responseBody = new CustomResponse();
 
         if (authService.getCurrentUser() == null) {
-            responseBody.put("data", null);
-            responseBody.put("error", "you must login first !");
+            responseBody.setData(null);
+            responseBody.setError("you must login first !");
             return ResponseEntity.status(401).body(responseBody);
         }
 
         Optional<Category> tempCategory = categoryRepository.findByName(categoryRequest.getName());
 
         if (tempCategory.isPresent()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "category already exists !");
+            responseBody.setData(null);
+            responseBody.setError("category already exists !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
@@ -76,22 +75,22 @@ public class CategoryService {
 
         categoryRepository.save(category);
 
-        responseBody.put("data", category);
-        responseBody.put("error", null);
+        responseBody.setData(category);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> updateCategory(Long id, CategoryRequest categoryRequest) {
+    public ResponseEntity<CustomResponse> updateCategory(Long id, CategoryRequest categoryRequest) {
 
         Optional<Category> category = categoryRepository.findById(id);
 
-        Map<Object, Object> responseBody = new HashMap<>();
+        CustomResponse responseBody = new CustomResponse();
 
         if (category.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "wrong category id !");
+            responseBody.setData(null);
+            responseBody.setError("Wrong Category Id !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
@@ -101,28 +100,28 @@ public class CategoryService {
 
         categoryRepository.save(tempCategory);
 
-        responseBody.put("data", tempCategory);
-        responseBody.put("error", null);
+        responseBody.setData(tempCategory);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
-    public ResponseEntity<Map<Object, Object>> deleteCategory(Long id) {
-        Map<Object, Object> responseBody = new HashMap<>();
+    public ResponseEntity<CustomResponse> deleteCategory(Long id) {
+        CustomResponse responseBody = new CustomResponse();
 
         Optional<Category> category = categoryRepository.findById(id);
 
         if (category.isEmpty()) {
-            responseBody.put("data", null);
-            responseBody.put("error", "category isn't exist ! ");
+            responseBody.setData(null);
+            responseBody.setError("Category doesn't exist !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
-        responseBody.put("data", "category id : " + id + " is removed !");
-        responseBody.put("error", null);
-
         categoryRepository.deleteById(id);
+
+        responseBody.setData("category id : " + id + " is removed !");
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
