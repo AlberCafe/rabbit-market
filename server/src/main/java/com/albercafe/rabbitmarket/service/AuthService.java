@@ -5,6 +5,7 @@ import com.albercafe.rabbitmarket.entity.User;
 import com.albercafe.rabbitmarket.entity.UserProfile;
 import com.albercafe.rabbitmarket.entity.VerificationToken;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
+import com.albercafe.rabbitmarket.exception.TokenNotFoundException;
 import com.albercafe.rabbitmarket.repository.UserProfileRepository;
 import com.albercafe.rabbitmarket.repository.UserRepository;
 import com.albercafe.rabbitmarket.repository.VerificationTokenRepository;
@@ -61,22 +62,35 @@ public class AuthService {
         UserProfile userProfile = new UserProfile();
         userProfile.setAddress(registerRequest.getAddress());
         userProfile.setPhoneNumber(registerRequest.getPhoneNumber());
-        userProfile.setUsername(registerRequest.getUsername());
+        if (registerRequest.getUsername() == null) {
+            String email = user.getEmail();
+            int endIdx = email.indexOf("@");
+            String defaultUsername = email.substring(0, endIdx);
+            userProfile.setUsername(defaultUsername);
+        } else {
+            userProfile.setUsername(registerRequest.getUsername());
+        }
 
         user.setUserProfile(userProfile);
         userProfile.setUser(user);
-
-        userRepository.save(user);
-        userProfileRepository.save(userProfile);
 
         String token = generateVerificationToken(user);
         String link = Constants.ACTIVATION_EMAIL + "/" + token;
         String message = mailContentBuilder.build(link);
 
-        mailService.sendMail(new NotificationEmail("계정 활성화를 실행해주세요.", user.getEmail(), message));
+        try {
+            mailService.sendMail(new NotificationEmail("계정 활성화를 실행해주세요.", user.getEmail(), message));
+        } catch (Exception e) {
+            responseBody.setData(null);
+            responseBody.setError(e);
+            return ResponseEntity.status(400).body(responseBody);
+        }
 
         responseBody.setData("checkout your email, you must activate your account !");
         responseBody.setError(null);
+
+        userRepository.save(user);
+        userProfileRepository.save(userProfile);
 
         return ResponseEntity.ok().body(responseBody);
     }
@@ -94,23 +108,11 @@ public class AuthService {
         return bCryptPasswordEncoder.encode(password);
     }
 
-    public ResponseEntity<CustomResponse> verifyAccount(String token) {
-        CustomResponse responseBody = new CustomResponse();
+    public void verifyAccount(String token) {
+        VerificationToken verificationToken = verificationTokenRepository
+                .findByToken(token).orElseThrow(() -> new TokenNotFoundException("Invalid Token !"));
 
-        Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);
-
-        if (verificationTokenOptional.isEmpty()) {
-            responseBody.setData(null);
-            responseBody.setError("Invalid Token, Check out your verification token !");
-            return ResponseEntity.status(400).body(responseBody);
-        }
-
-        fetchUserAndEnable(verificationTokenOptional.get());
-
-        responseBody.setData("Account activation was successful.");
-        responseBody.setError(null);
-
-        return ResponseEntity.status(200).body(responseBody);
+        fetchUserAndEnable(verificationToken);
     }
 
     @Transactional
