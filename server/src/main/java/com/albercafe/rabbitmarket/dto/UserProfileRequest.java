@@ -1,23 +1,17 @@
-package com.albercafe.rabbitmarket.entity;
+package com.albercafe.rabbitmarket.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.validation.constraints.Pattern;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class UserProfile {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@NoArgsConstructor
+public class UserProfileRequest {
 
     @Column(unique = true)
     private String username;
@@ -35,8 +29,4 @@ public class UserProfile {
 
     @ColumnDefault("0")
     private Long ratings;
-
-    @OneToOne(mappedBy = "userProfile")
-    @JsonIgnore
-    private User user;
 }
