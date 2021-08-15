@@ -2,13 +2,15 @@ package com.albercafe.rabbitmarket.service;
 
 import com.albercafe.rabbitmarket.dto.CustomResponse;
 import com.albercafe.rabbitmarket.entity.RefreshToken;
-import com.albercafe.rabbitmarket.exception.RabbitMarketException;
+import com.albercafe.rabbitmarket.exception.InvalidRefreshTokenException;
+import com.albercafe.rabbitmarket.exception.TokenNotFoundException;
 import com.albercafe.rabbitmarket.repository.RefreshTokenRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -28,9 +30,18 @@ public class RefreshTokenService {
     }
 
     void validateRefreshToken(String token) {
-        // TODO : 검증 이후 만료 시간 지났을때 삭제하는 로직이 따로 있어야 함
-        refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RabbitMarketException("RefreshToken 검증 중에 오류 발생 (잘못된 토큰)"));
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
+                .orElseThrow(() -> new TokenNotFoundException(token));
+
+        OffsetDateTime tokenCreatedDate = refreshToken.getCreatedDate();
+        OffsetDateTime now = OffsetDateTime.now();
+
+        Duration duration = Duration.between(tokenCreatedDate, now);
+
+        if (duration.toDays() > 1) {
+            refreshTokenRepository.deleteByToken(token);
+            throw new InvalidRefreshTokenException(token);
+        }
     }
 
     public ResponseEntity<CustomResponse> deleteRefreshToken(String token) {
@@ -38,7 +49,7 @@ public class RefreshTokenService {
 
         refreshTokenRepository.deleteByToken(token);
 
-        responseBody.setData(token + " is removed !");
+        responseBody.setData(token + " is removed !, you need to login again ! ");
         responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
