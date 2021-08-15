@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
 
@@ -30,9 +29,8 @@ public class AuthController {
     @ApiOperation(httpMethod = "GET", value = "Activate account", notes = "Activate account")
     @ApiResponse(code = 200, message = "OK", response = CustomResponse.class)
     @GetMapping(value = "/accountVerification/{token}", produces = "application/json; charset=UTF-8;")
-    public RedirectView verifyAccount(@PathVariable String token) {
-        authService.verifyAccount(token);
-        return new RedirectView("/api/auth/accountVerification/" + token);
+    public ResponseEntity<CustomResponse> verifyAccount(@PathVariable String token) {
+        return authService.verifyAccount(token);
     }
 
     @ApiOperation(httpMethod = "POST", value = "login", notes = "When login, you must check out email, password !")
