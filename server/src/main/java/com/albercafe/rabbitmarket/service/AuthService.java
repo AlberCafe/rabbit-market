@@ -108,11 +108,18 @@ public class AuthService {
         return bCryptPasswordEncoder.encode(password);
     }
 
-    public void verifyAccount(String token) {
+    public ResponseEntity<CustomResponse> verifyAccount(String token) {
+        CustomResponse responseBody = new CustomResponse();
+
         VerificationToken verificationToken = verificationTokenRepository
                 .findByToken(token).orElseThrow(() -> new TokenNotFoundException("Invalid Token !"));
 
         fetchUserAndEnable(verificationToken);
+
+        responseBody.setData("activate your account !");
+        responseBody.setError(null);
+
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     @Transactional
