@@ -22,7 +22,6 @@ public class RegisterRequest {
     @NotNull(message = "password 는 빈 값이 들어갈 수 없습니다.")
     private String password;
 
-    @Column(unique = true)
     private String username;
 
     private String address;
