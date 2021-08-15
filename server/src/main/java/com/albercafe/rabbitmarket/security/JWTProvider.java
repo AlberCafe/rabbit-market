@@ -1,9 +1,9 @@
 package com.albercafe.rabbitmarket.security;
 
+import com.albercafe.rabbitmarket.exception.ExpiredJWTException;
+import com.albercafe.rabbitmarket.exception.MalformedJWTException;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -75,11 +75,15 @@ public class JWTProvider {
         }
     }
 
-    public boolean validateToken(String jwt) {
-        // TODO : 시간 만료시에 다시 재 로그인하도록 메시지 보내기.
-        // 현재 시간과 입력받은 jwt 간의 시간 차를 계산해서 ExpiredJwtException 에러 발생시 에러 값을 넘겨주도록 유도해야함
-        // 추가적으로 user 테이블과 refreshtoken 테이블 간에 매핑이 1:1 로 이뤄지게 한 다음 에러 발생시 삭제하게 해야함
-        parser.parseClaimsJws(jwt);
+    public boolean validateJwt(String jwt) {
+        try {
+            parser.parseClaimsJws(jwt);
+        } catch (ExpiredJwtException e) {
+            throw new ExpiredJWTException(jwt);
+        } catch (MalformedJwtException e) {
+            throw new MalformedJWTException(jwt);
+        }
+
         return true;
     }
 

@@ -33,7 +33,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         String jwt = getJWTFromRequest(request);
 
-        if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
+        if (StringUtils.hasText(jwt) && jwtProvider.validateJwt(jwt)) {
             String email = jwtProvider.getEmailFromJWT(jwt);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
