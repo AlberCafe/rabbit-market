@@ -1,11 +1,13 @@
 package com.albercafe.rabbitmarket.service;
 
 import com.albercafe.rabbitmarket.dto.*;
+import com.albercafe.rabbitmarket.entity.RefreshToken;
 import com.albercafe.rabbitmarket.entity.User;
 import com.albercafe.rabbitmarket.entity.UserProfile;
 import com.albercafe.rabbitmarket.entity.VerificationToken;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
 import com.albercafe.rabbitmarket.exception.TokenNotFoundException;
+import com.albercafe.rabbitmarket.repository.RefreshTokenRepository;
 import com.albercafe.rabbitmarket.repository.UserProfileRepository;
 import com.albercafe.rabbitmarket.repository.UserRepository;
 import com.albercafe.rabbitmarket.repository.VerificationTokenRepository;
@@ -41,6 +43,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JWTProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public ResponseEntity<CustomResponse> signup(RegisterRequest registerRequest) {
@@ -136,21 +139,23 @@ public class AuthService {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> tempUser = userRepository.findByEmail(email);
 
-        if (user.isEmpty()) {
+        if (tempUser.isEmpty()) {
             responseBody.setData(null);
             responseBody.setError("Wrong Email !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
-        if (!user.get().getEnabled()) {
+        User user = tempUser.get();
+
+        if (!user.getEnabled()) {
             responseBody.setData(null);
             responseBody.setError("This user need to activate, checkout your email !");
             return ResponseEntity.status(400).body(responseBody);
         }
 
-        if (!bCryptPasswordEncoder.matches(password, user.get().getPassword())) {
+        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             responseBody.setData(null);
             responseBody.setError("Wrong Password !");
             return ResponseEntity.status(400).body(responseBody);
@@ -164,9 +169,18 @@ public class AuthService {
 
         String authenticationToken = jwtProvider.generateToken(authentication);
 
+        RefreshToken refreshToken = refreshTokenService.generateRefreshToken();
+        RefreshToken oldRefreshToken = user.getRefreshToken();
+
+        user.setRefreshToken(refreshToken);
+
+        userRepository.save(user);
+        
+        refreshTokenRepository.delete(oldRefreshToken);
+
         AuthenticationResponse authenticationResponse =  AuthenticationResponse.builder()
                 .authenticationToken(authenticationToken)
-                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .refreshToken(refreshToken.getToken())
                 .expiresAt(Instant.from(OffsetDateTime.now().plusMinutes(jwtProvider.getJWTExpirationInMillis())))
                 .email(loginRequest.getEmail())
                 .build();
