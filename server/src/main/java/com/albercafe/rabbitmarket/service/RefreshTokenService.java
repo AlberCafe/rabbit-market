@@ -24,6 +24,7 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     RefreshToken generateRefreshToken() {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(UUID.randomUUID().toString());
@@ -32,6 +33,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
+    @Transactional
     void validateRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new TokenNotFoundException(token));
@@ -47,6 +49,7 @@ public class RefreshTokenService {
         }
     }
 
+    @Transactional
     public ResponseEntity<CustomResponse> deleteRefreshToken(String token) {
         CustomResponse responseBody = new CustomResponse();
 
