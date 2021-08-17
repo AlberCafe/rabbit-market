@@ -17,7 +17,6 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
@@ -44,7 +43,6 @@ public class RefreshTokenService {
         Duration duration = Duration.between(tokenCreatedDate, now);
 
         if (duration.toDays() > 1) {
-            refreshTokenRepository.deleteByToken(token);
             throw new InvalidRefreshTokenException(token);
         }
     }
@@ -62,7 +60,7 @@ public class RefreshTokenService {
 
         refreshTokenRepository.deleteByToken(token);
 
-        responseBody.setData("refresh token : " + token + " is removed !, you need to login again ! ");
+        responseBody.setData("Because refresh token expired, old refresh token : " + token + " is removed !, you need to login again ! ");
         responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);

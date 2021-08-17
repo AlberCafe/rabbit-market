@@ -168,9 +168,11 @@ public class AuthService {
         String authenticationToken = jwtProvider.generateToken(authentication);
 
         RefreshToken oldRefreshToken = user.getRefreshToken();
-        RefreshToken newRefreshToken = refreshTokenService.generateRefreshToken();
+        RefreshToken newRefreshToken;
 
         if (oldRefreshToken == null) {
+            newRefreshToken = refreshTokenService.generateRefreshToken();
+
             user.setRefreshToken(newRefreshToken);
 
             userRepository.save(user);
