@@ -29,7 +29,6 @@ public class APIExceptionAdvice {
     public ResponseEntity<CustomResponse> ExpiredRefreshTokenExceptionHandler(InvalidRefreshTokenException e) {
         String token = e.getMessage();
         return refreshTokenService.deleteRefreshToken(token);
-        // 삭제만 하고 끝나는게 아니라 다시 재 생성하도록 유도해야함 (서버내에 코드를 써줘야 할 듯)
     }
 
     @ExceptionHandler
