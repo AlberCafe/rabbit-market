@@ -7,7 +7,6 @@ import com.albercafe.rabbitmarket.entity.UserProfile;
 import com.albercafe.rabbitmarket.entity.VerificationToken;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
 import com.albercafe.rabbitmarket.exception.TokenNotFoundException;
-import com.albercafe.rabbitmarket.repository.RefreshTokenRepository;
 import com.albercafe.rabbitmarket.repository.UserProfileRepository;
 import com.albercafe.rabbitmarket.repository.UserRepository;
 import com.albercafe.rabbitmarket.repository.VerificationTokenRepository;
@@ -43,7 +42,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JWTProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public ResponseEntity<CustomResponse> signup(RegisterRequest registerRequest) {
@@ -169,26 +167,38 @@ public class AuthService {
 
         String authenticationToken = jwtProvider.generateToken(authentication);
 
-        RefreshToken refreshToken = refreshTokenService.generateRefreshToken();
         RefreshToken oldRefreshToken = user.getRefreshToken();
+        RefreshToken newRefreshToken = refreshTokenService.generateRefreshToken();
 
-        user.setRefreshToken(refreshToken);
+        if (oldRefreshToken == null) {
+            user.setRefreshToken(newRefreshToken);
 
-        userRepository.save(user);
-        
-        refreshTokenRepository.delete(oldRefreshToken);
+            userRepository.save(user);
 
-        AuthenticationResponse authenticationResponse =  AuthenticationResponse.builder()
-                .authenticationToken(authenticationToken)
-                .refreshToken(refreshToken.getToken())
-                .expiresAt(Instant.from(OffsetDateTime.now().plusMinutes(jwtProvider.getJWTExpirationInMillis())))
-                .email(loginRequest.getEmail())
-                .build();
+            AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+                    .authenticationToken(authenticationToken)
+                    .refreshToken(newRefreshToken.getToken())
+                    .expiresAt(Instant.from(OffsetDateTime.now().plusMinutes(jwtProvider.getJWTExpirationInMillis())))
+                    .email(loginRequest.getEmail())
+                    .build();
 
-        responseBody.setData(authenticationResponse);
+            responseBody.setData(authenticationResponse);
+
+        } else {
+            refreshTokenService.validateRefreshToken(oldRefreshToken.getToken());
+
+            AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+                    .authenticationToken(authenticationToken)
+                    .refreshToken(oldRefreshToken.getToken())
+                    .expiresAt(Instant.from(OffsetDateTime.now().plusMinutes(jwtProvider.getJWTExpirationInMillis())))
+                    .email(loginRequest.getEmail())
+                    .build();
+
+            responseBody.setData(authenticationResponse);
+
+        }
         responseBody.setError(null);
-
-        return ResponseEntity.ok().body(responseBody);
+        return ResponseEntity.status(200).body(responseBody);
     }
 
     public ResponseEntity<CustomResponse> refreshToken(RefreshTokenRequest refreshTokenRequest) {
