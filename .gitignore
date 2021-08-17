@@ -1,4 +1,5 @@
 .gitignore
+.DS_STORE
 
 application.properties
 rabbit-market.jks
