@@ -5,7 +5,7 @@ import com.albercafe.rabbitmarket.service.AuthService;
 import com.albercafe.rabbitmarket.service.RefreshTokenService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
