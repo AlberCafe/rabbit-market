@@ -1,8 +1,10 @@
 package com.albercafe.rabbitmarket.entity;
 
+import com.albercafe.rabbitmarket.util.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -40,4 +42,11 @@ public class User {
             joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "userId") },
             inverseJoinColumns = { @JoinColumn(name = "refresh_token_id", referencedColumnName = "id") })
     private RefreshToken refreshToken;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(255) default 'local'")
+    private AuthProvider provider;
+
+    private String providerId;
 }
