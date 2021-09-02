@@ -1,6 +1,6 @@
 package com.albercafe.rabbitmarket.security;
 
-import com.albercafe.rabbitmarket.service.CustomUserDetailsService;
+import com.albercafe.rabbitmarket.service.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTProvider jwtProvider;
 
-    private final CustomUserDetailsService customUserDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
@@ -36,7 +36,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(jwt) && jwtProvider.validateJwt(jwt)) {
             String email = jwtProvider.getEmailFromJWT(jwt);
 
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     userDetails,

@@ -1,92 +1,61 @@
 package com.albercafe.rabbitmarket.service;
 
+import com.albercafe.rabbitmarket.dto.OAuthAttributes;
 import com.albercafe.rabbitmarket.entity.User;
 import com.albercafe.rabbitmarket.entity.UserProfile;
-import com.albercafe.rabbitmarket.exception.OAuth2AuthenticationProcessingException;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
 import com.albercafe.rabbitmarket.repository.UserRepository;
-import com.albercafe.rabbitmarket.security.UserPrincipal;
-import com.albercafe.rabbitmarket.security.oauth2.user.OAuth2UserInfo;
-import com.albercafe.rabbitmarket.security.oauth2.user.OAuth2UserInfoFactory;
-import com.albercafe.rabbitmarket.util.AuthProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.util.Optional;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
     private final UserRepository userRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(oAuth2UserRequest);
 
-        try {
-            return processOAuth2User(oAuth2UserRequest, oAuth2User);
-        } catch (AuthenticationException e) {
-            throw new RabbitMarketException(e.getMessage());
-        } catch (Exception e) {
-            // This exception trigger OAuth2FailureHandler
-            throw new InternalAuthenticationServiceException(e.getMessage(), e.getCause());
-        }
+        // Provider 구분 코드
+        String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
+
+        // OAuth2 로그인시 사용되는 키 필드 값 (ex. 구글 : sub)
+        String userNameAttributes = oAuth2UserRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
+
+        // OAuth2UserService 를 통해 가져온 OAuth2User 의 Attribute
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributes, oAuth2User.getAttributes());
+
+        User user = saveOrUpdate(attributes);
+
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority(user.getRoleType().toString())),
+                attributes.getAttributes(),
+                attributes.getNameAttributeKey()
+        );
     }
 
-    private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration().getRegistrationId(), oAuth2User.getAttributes());
+    private User saveOrUpdate(OAuthAttributes attributes) {
+        User user = userRepository.findByEmail(attributes.getEmail()).orElseThrow(() -> new RabbitMarketException("Can't find user : " + attributes.getEmail()));
 
-        if (StringUtils.hasLength(oAuth2UserInfo.getEmail()))
-            throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 Provider");
-
-        Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
-        User user;
-
-        if (userOptional.isPresent()) {
-            user = userOptional.get();
-            if (!user.getProvider().equals(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()))) {
-                throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
-                        user.getProvider() + " account. Please use your " + user.getProvider() + " account to login ");
-            }
-            user = updateExistingUser(user, oAuth2UserInfo);
-        } else {
-            user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
-        }
-
-        return UserPrincipal.create(user, oAuth2User.getAttributes());
-    }
-
-    private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
-        User user = new User();
-        UserProfile userProfile = new UserProfile();
-
-        user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
-        user.setProviderId(oAuth2UserInfo.getId());
-        user.setEmail(oAuth2UserInfo.getEmail());
-
-        userProfile.setUsername(oAuth2UserInfo.getName());
-        userProfile.setProfilePhoto(oAuth2UserInfo.getImageUrl());
+        UserProfile userProfile = user.getUserProfile();
+        userProfile.setUsername(attributes.getUsername());
+        userProfile.setProfilePhoto(attributes.getPicture());
 
         user.setUserProfile(userProfile);
 
         return userRepository.save(user);
-    }
-
-    private User updateExistingUser(User existingUser, OAuth2UserInfo oAuth2UserInfo) {
-        UserProfile userProfile = existingUser.getUserProfile();
-
-        userProfile.setUsername(oAuth2UserInfo.getName());
-        userProfile.setProfilePhoto(oAuth2UserInfo.getImageUrl());
-
-        existingUser.setUserProfile(userProfile);
-
-        return userRepository.save(existingUser);
     }
 }
