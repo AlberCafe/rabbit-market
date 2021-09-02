@@ -1,10 +1,10 @@
 package com.albercafe.rabbitmarket.entity;
 
 import com.albercafe.rabbitmarket.util.AuthProvider;
+import com.albercafe.rabbitmarket.util.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -45,8 +45,11 @@ public class User {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "varchar(255) default 'local'")
+    @Column(name = "PROVIDER_TYPE", columnDefinition = "varchar(20) default 'LOCAL'")
     private AuthProvider provider;
 
-    private String providerId;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ROLE_TYPE", columnDefinition = "varchar(20) default 'GUEST'")
+    private RoleType roleType;
 }
