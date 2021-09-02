@@ -2,8 +2,6 @@ package com.albercafe.rabbitmarket.service;
 
 import com.albercafe.rabbitmarket.dto.OAuthAttributes;
 import com.albercafe.rabbitmarket.entity.User;
-import com.albercafe.rabbitmarket.entity.UserProfile;
-import com.albercafe.rabbitmarket.exception.RabbitMarketException;
 import com.albercafe.rabbitmarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -48,13 +46,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByEmail(attributes.getEmail()).orElseThrow(() -> new RabbitMarketException("Can't find user : " + attributes.getEmail()));
-
-        UserProfile userProfile = user.getUserProfile();
-        userProfile.setUsername(attributes.getUsername());
-        userProfile.setProfilePhoto(attributes.getPicture());
-
-        user.setUserProfile(userProfile);
+        User user = userRepository.findByEmail(attributes.getEmail())
+                .map(entity -> entity.update(attributes.getUsername(), attributes.getPicture(), attributes.getAuthProvider()))
+                .orElse(attributes.toEntity());
 
         return userRepository.save(user);
     }
