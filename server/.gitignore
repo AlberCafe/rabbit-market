@@ -42,3 +42,7 @@ build/
 .target
 
 .idea
+
+*.csv
+*.pem
+*.yml
