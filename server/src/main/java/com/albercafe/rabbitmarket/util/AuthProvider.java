@@ -1,8 +1,11 @@
 package com.albercafe.rabbitmarket.util;
 
+import lombok.Getter;
+
+@Getter
 public enum AuthProvider {
-    local,
-    naver,
-    kakao,
-    google
+    LOCAL,
+    NAVER,
+    KAKAO,
+    GOOGLE
 }
