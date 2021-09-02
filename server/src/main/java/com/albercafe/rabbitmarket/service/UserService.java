@@ -5,10 +5,8 @@ import com.albercafe.rabbitmarket.dto.UserProfileRequest;
 import com.albercafe.rabbitmarket.entity.User;
 import com.albercafe.rabbitmarket.entity.UserProfile;
 import com.albercafe.rabbitmarket.exception.RabbitMarketException;
-import com.albercafe.rabbitmarket.exception.ResourceNotFoundException;
 import com.albercafe.rabbitmarket.repository.UserProfileRepository;
 import com.albercafe.rabbitmarket.repository.UserRepository;
-import com.albercafe.rabbitmarket.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -66,17 +64,6 @@ public class UserService {
         userProfileRepository.save(userProfile);
 
         responseBody.setData("user id : " + id + "'s profile was updated !");
-        responseBody.setError(null);
-
-        return ResponseEntity.status(200).body(responseBody);
-    }
-
-    public ResponseEntity<CustomResponse> getCurrentUser(UserPrincipal userPrincipal) {
-        CustomResponse responseBody = new CustomResponse();
-
-        User user = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId().toString()));
-
-        responseBody.setData(user);
         responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
