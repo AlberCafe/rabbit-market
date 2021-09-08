@@ -28,7 +28,6 @@ public class User {
 
     @Email
     @Column(unique = true)
-    @NotNull(message = "email 은 빈 값이 들어갈 수 없습니다.")
     private String email;
 
     private Boolean enabled;
