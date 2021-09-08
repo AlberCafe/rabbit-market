@@ -1,6 +1,7 @@
 package com.albercafe.rabbitmarket.controller;
 
 import com.albercafe.rabbitmarket.dto.CustomResponse;
+import com.albercafe.rabbitmarket.dto.OAuthResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,13 @@ public class OAuthController {
                 oAuth2AuthenticationToken.getName()
         );
 
-        CustomResponse responseBody = new CustomResponse();
-        responseBody.setData(client);
-        responseBody.setError(null);
+        OAuthResponse oAuthResponse = new OAuthResponse();
+        oAuthResponse.setOAuth2AccessToken(client.getAccessToken());
+        oAuthResponse.setOAuth2RefreshToken(client.getRefreshToken());
 
-        log.info("principal name : " + client.getPrincipalName());
+        CustomResponse responseBody = new CustomResponse();
+        responseBody.setData(oAuthResponse);
+        responseBody.setError(null);
 
         return ResponseEntity.status(200).body(responseBody);
     }
