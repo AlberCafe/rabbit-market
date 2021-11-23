@@ -9,12 +9,4 @@ Key technical elements of the back-end system (whether used or scheduled to be u
 
 - Java
 - Spring Boot
-- Docker, Kubernetness
 - AWS
-
-This backend system will add the following features later
-
-- Container-based technology, virtualization systems
-- Payment Service System
-- Search Systems
-- Microservice Architecture
